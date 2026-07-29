@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react'
-import { FaBars } from 'react-icons/fa6'
-import Sidebar from './components/layout/Sidebar'
 import DashboardPage from './components/pages/DashboardPage'
 
 function App() {
-  const [activeView, setActiveView] = useState('dashboard')
   const [status, setStatus] = useState({
     backend: 'offline',
     gemini: 'offline',
@@ -27,16 +24,14 @@ function App() {
       }
     }
     fetchStatus()
-    const interval = setInterval(fetchStatus, 8000)
+    const interval = setInterval(fetchStatus, 30000)
     return () => clearInterval(interval)
   }, [])
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_28%),linear-gradient(120deg,_#020617_0%,_#0f172a_55%,_#111827_100%)] px-3 py-3 text-slate-100 sm:px-4 lg:px-6 lg:py-6">
-      <div className="mx-auto flex max-w-7xl w-full flex-col gap-4 lg:flex-row items-start">
-        <Sidebar activeItem={activeView} onSelect={setActiveView} />
-
-        <main className="flex-1 min-w-0 w-full rounded-[32px] border border-white/10 bg-slate-950/70 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.45)] backdrop-blur-xl sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-6xl w-full">
+        <main className="w-full rounded-[32px] border border-white/10 bg-slate-950/70 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.45)] backdrop-blur-xl sm:p-6 lg:p-8">
           <header className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-white/10 bg-slate-900/60 px-4 py-4 sm:px-6">
             <div>
               <p className="text-xs uppercase tracking-[0.32em] text-slate-400">Ethereum AI Trading Agent</p>
@@ -61,13 +56,6 @@ function App() {
               </div>
             </div>
           </header>
-
-          <div className="flex items-center justify-between rounded-[24px] border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-400 lg:hidden">
-            <span>Dashboard</span>
-            <button type="button" className="rounded-xl border border-white/10 p-2 text-slate-200">
-              <FaBars />
-            </button>
-          </div>
 
           <DashboardPage />
         </main>

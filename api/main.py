@@ -5,6 +5,9 @@ import subprocess
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from dotenv import load_dotenv
+load_dotenv()
+
 app = FastAPI()
 
 # Add CORS middleware to allow React frontend to connect
