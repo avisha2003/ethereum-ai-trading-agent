@@ -217,6 +217,7 @@ wethwbtc_quotes = get_quotes(
 total_error = Decimal(0)
 changes = []
 
+prediction_history = []
 for index in range(0,len(wethusdc_quotes)-CYCLES_BACK):
     wethusdc_slice = wethusdc_quotes[index:index+CYCLES_BACK]
     wethwbtc_slice = wethwbtc_quotes[index:index+CYCLES_BACK]
@@ -252,7 +253,16 @@ for index in range(0,len(wethusdc_quotes)-CYCLES_BACK):
 
     recomended_action = 'buy' if predicted_price > prediction_time_price else 'sell'
     price_increase = real_price - prediction_time_price
-    changes.append(price_increase if recomended_action == 'buy' else -price_increase)
+    pnl = price_increase if recomended_action == 'buy' else -price_increase
+    changes.append(pnl)
+    prediction_history.append({
+        "time": prediction_time,
+        "predicted": float(predicted_price),
+        "actual": float(real_price),
+        "error": float(error),
+        "recommendation": recomended_action.upper(),
+        "pnl": float(pnl)
+    })
 
 
 print (f"Mean prediction error over {len(wethusdc_quotes)-CYCLES_BACK} predictions: {total_error / Decimal(len(wethusdc_quotes)-CYCLES_BACK)} USD")
@@ -264,3 +274,17 @@ var = sum((x - mean_change) ** 2 for x in changes) / length_changes
 print (f"Standard variance of changes: {var.sqrt().quantize(Decimal("0.01"))} USD")
 print (f"Profitable days: {len(list(filter(lambda x: x > 0, changes)))/length_changes:.2%}")
 print (f"Losing days: {len(list(filter(lambda x: x < 0, changes)))/length_changes:.2%}")
+
+if os.environ.get("API_MODE") == "true":
+    import json
+    print("__RESULTS_JSON__:" + json.dumps({
+        "summary": {
+            "mean_error": float(total_error / Decimal(len(wethusdc_quotes)-CYCLES_BACK)),
+            "prediction_count": len(wethusdc_quotes)-CYCLES_BACK,
+            "win_rate": float(len(list(filter(lambda x: x > 0, changes)))/length_changes),
+            "avg_profit": float(mean_change),
+            "variance": float(var.sqrt())
+        },
+        "predictions": prediction_history
+    }))
+

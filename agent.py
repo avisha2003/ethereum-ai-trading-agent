@@ -225,3 +225,14 @@ if (expected_price > current_price):
     print(f"Buy, I expect the price to go up by {expected_price - current_price} USD")
 else:
     print(f"Sell, I expect the price to go down by {current_price - expected_price} USD")   
+
+if os.environ.get("API_MODE") == "true":
+    import json
+    print("__RESULTS_JSON__:" + json.dumps({
+        "current_price": float(current_price),
+        "predicted_price": float(expected_price),
+        "recommendation": "BUY" if expected_price > current_price else "SELL",
+        "difference": float(abs(expected_price - current_price)),
+        "prediction_time": future_time
+    }))
+

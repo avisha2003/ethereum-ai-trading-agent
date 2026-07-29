@@ -9,7 +9,7 @@ const navItems = [
 
 function Sidebar({ activeItem, onSelect }) {
   return (
-    <aside className="hidden w-72 flex-col rounded-[32px] border border-white/10 bg-slate-950/70 p-5 shadow-[0_20px_60px_rgba(2,6,23,0.5)] backdrop-blur-xl lg:flex">
+    <aside className="hidden w-72 flex-col rounded-[32px] border border-white/10 bg-slate-950/70 p-5 shadow-[0_20px_60px_rgba(2,6,23,0.5)] backdrop-blur-xl lg:flex lg:sticky lg:top-6 self-start">
       <div className="mb-8 flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-lg font-semibold text-white">
           EA
@@ -40,11 +40,6 @@ function Sidebar({ activeItem, onSelect }) {
           )
         })}
       </nav>
-
-      <div className="mt-auto rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 p-4">
-        <p className="text-sm text-slate-300">Frontend Phase 1</p>
-        <p className="mt-1 text-xs text-slate-400">Clean UI scaffold with dummy data only.</p>
-      </div>
     </aside>
   )
 }

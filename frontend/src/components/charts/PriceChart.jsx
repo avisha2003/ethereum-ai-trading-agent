@@ -12,21 +12,7 @@ import { Line } from 'react-chartjs-2'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler, Legend)
 
-const data = {
-  labels: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
-  datasets: [
-    {
-      label: 'ETH (mock)',
-      data: [3180, 3215, 3196, 3264, 3330, 3310, 3378],
-      borderColor: '#38bdf8',
-      backgroundColor: 'rgba(56, 189, 248, 0.16)',
-      tension: 0.38,
-      fill: true,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-    },
-  ],
-}
+
 
 const options = {
   responsive: true,
@@ -51,6 +37,7 @@ const options = {
       },
       ticks: {
         color: '#94a3b8',
+        maxTicksLimit: 8,
       },
     },
     y: {
@@ -64,7 +51,31 @@ const options = {
   },
 }
 
-function PriceChart() {
+function PriceChart({ chartData }) {
+  if (!chartData || chartData.length === 0) {
+    return (
+      <div className="h-72 flex flex-col items-center justify-center text-slate-400 font-medium rounded-2xl bg-slate-900/20 border border-dashed border-white/5">
+        <span className="text-sm">Market data currently unavailable.</span>
+      </div>
+    )
+  }
+
+  const data = {
+    labels: chartData.map((d) => d.time),
+    datasets: [
+      {
+        label: 'ETH/USD',
+        data: chartData.map((d) => d.price),
+        borderColor: '#38bdf8',
+        backgroundColor: 'rgba(56, 189, 248, 0.16)',
+        tension: 0.38,
+        fill: true,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+      },
+    ],
+  }
+
   return (
     <div className="h-72">
       <Line data={data} options={options} />
