@@ -31,7 +31,7 @@ def run_script(script_name: str) -> dict:
             capture_output=True,
             text=True,
             env=env,
-            cwd=os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+            cwd=os.path.abspath(os.path.dirname(__file__))
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to execute script: {str(e)}")
@@ -48,7 +48,7 @@ def run_script(script_name: str) -> dict:
                 capture_output=True,
                 text=True,
                 env=env,
-                cwd=os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+                cwd=os.path.abspath(os.path.dirname(__file__))
             )
         except Exception as e:
             raise HTTPException(
