@@ -222,7 +222,40 @@ function DashboardPage() {
       const response = await axios.get('http://localhost:8000/predict')
       setPrediction(response.data)
     } catch (err) {
-      setPredictError(err.response?.data?.detail || err.message || 'Failed to generate prediction. Gemini API might be busy.')
+
+      const error = err.response?.data?.detail;
+
+      if (error) {
+
+        switch (error.code) {
+
+          case "quota_exceeded":
+            setPredictError("Gemini API quota exceeded. Please try again later.");
+            break;
+
+          case "invalid_api_key":
+            setPredictError("Invalid Gemini API key.");
+            break;
+
+          case "server_busy":
+            setPredictError("Gemini service is temporarily busy.");
+            break;
+
+          case "client_error":
+            setPredictError(error.message);
+            break;
+
+          case "unexpected_error":
+            setPredictError("Unexpected server error.");
+            break;
+
+          default:
+            setPredictError(error.message || "Prediction failed.");
+        }
+
+      } else {
+        setPredictError("Unable to connect to backend.");
+      }
     } finally {
       setLoadingPredict(false)
     }
@@ -235,7 +268,40 @@ function DashboardPage() {
       const response = await axios.get('http://localhost:8000/backtest')
       setBacktest(response.data)
     } catch (err) {
-      setBacktestError(err.response?.data?.detail || err.message || 'Backtest execution failed. Check backend connection.')
+
+      const error = err.response?.data?.detail;
+
+      if (error) {
+
+        switch (error.code) {
+
+          case "quota_exceeded":
+            setBacktestError("Gemini API quota exceeded. Please try again later.");
+            break;
+
+          case "invalid_api_key":
+            setBacktestError("Invalid Gemini API key.");
+            break;
+
+          case "server_busy":
+            setBacktestError("Gemini service is temporarily busy.");
+            break;
+
+          case "client_error":
+            setBacktestError(error.message);
+            break;
+
+          case "unexpected_error":
+            setBacktestError("Unexpected server error.");
+            break;
+
+          default:
+            setBacktestError(error.message || "Backtest failed.");
+        }
+
+      } else {
+        setBacktestError("Unable to connect to backend.");
+      }
     } finally {
       setLoadingBacktest(false)
     }

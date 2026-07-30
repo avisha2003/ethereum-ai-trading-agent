@@ -36,11 +36,70 @@ def run_script(script_name: str) -> dict:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to execute script: {str(e)}")
         
-    if result.returncode != 0:
-        error_msg = result.stderr or result.stdout
+    def run_script(script_name: str) -> dict:
+        env = os.environ.copy()
+        env["API_MODE"] = "true"
+
+        cmd = [sys.executable, script_name]
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                env=env,
+                cwd=os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "service": "backend",
+                    "code": "execution_failed",
+                    "message": f"Failed to execute script: {str(e)}"
+                }
+            )
+
+        # -----------------------------
+        # Check if script returned a structured error
+        # -----------------------------
+        for line in result.stdout.splitlines():
+
+            if line.startswith("__ERROR__:"):
+                error = json.loads(
+                    line.split("__ERROR__:", 1)[1]
+                )
+
+                raise HTTPException(
+                    status_code=500,
+                    detail=error
+                )
+
+            if line.startswith("__RESULTS_JSON__:"):
+                return json.loads(
+                    line.split("__RESULTS_JSON__:", 1)[1]
+                )
+
+        # -----------------------------
+        # Fallback for unexpected crashes
+        # -----------------------------
+        if result.returncode != 0:
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "service": "backend",
+                    "code": "script_failed",
+                    "message": result.stderr.strip() or "Script execution failed."
+                }
+            )
+
         raise HTTPException(
             status_code=500,
-            detail=f"Script exited with error code {result.returncode}. Output:\n{error_msg}"
+            detail={
+                "service": "backend",
+                "code": "no_output",
+                "message": "Script completed without returning any data."
+            }
         )
         
     # Find the JSON marker in stdout

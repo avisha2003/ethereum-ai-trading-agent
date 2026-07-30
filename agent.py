@@ -10,6 +10,7 @@ import sys
 from google import genai
 import os
 from dotenv import load_dotenv
+from google.genai.errors import ServerError, ClientError
 
 load_dotenv()
 
@@ -208,10 +209,63 @@ wethwbtc_quotes = get_quotes(
 future_time = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()[0:16]
 prompt = make_prompt([wethusdc_quotes,wethwbtc_quotes], future_time, wethusdc_pool.asset)
 
-response = client.models.generate_content(
-    model="models/gemini-flash-latest",
-    contents=prompt
-)
+try:
+    response = client.models.generate_content(
+        model="models/gemini-flash-latest",
+        contents=prompt
+    )
+
+except ServerError:
+    if os.environ.get("API_MODE") == "true":
+        import json
+        print("__ERROR__:" + json.dumps({
+            "service": "gemini",
+            "code": "server_busy",
+            "message": "Gemini service is temporarily busy. Please try again."
+        }))
+    sys.exit(1)
+
+except ClientError as e:
+
+    error = str(e)
+
+    if os.environ.get("API_MODE") == "true":
+        import json
+
+        if "RESOURCE_EXHAUSTED" in error:
+            print("__ERROR__:" + json.dumps({
+                "service": "gemini",
+                "code": "quota_exceeded",
+                "message": "Gemini API quota exceeded. Please try again later."
+            }))
+
+        elif "UNAUTHENTICATED" in error:
+            print("__ERROR__:" + json.dumps({
+                "service": "gemini",
+                "code": "invalid_api_key",
+                "message": "Invalid Gemini API key."
+            }))
+
+        else:
+            print("__ERROR__:" + json.dumps({
+                "service": "gemini",
+                "code": "client_error",
+                "message": "Gemini request failed."
+            }))
+
+    sys.exit(1)
+
+except Exception:
+
+    if os.environ.get("API_MODE") == "true":
+        import json
+        print("__ERROR__:" + json.dumps({
+            "service": "backend",
+            "code": "unexpected_error",
+            "message": "Unexpected server error."
+        }))
+
+    sys.exit(1)
 
 prediction = response.text.strip()
 print("LLM Response:", prediction)

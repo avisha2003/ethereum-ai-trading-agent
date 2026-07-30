@@ -9,7 +9,7 @@ import time
 import functools
 import sys
 from google import genai
-from google.genai.errors import ServerError
+from google.genai.errors import ServerError,ClientError
 
 import os
 from dotenv import load_dotenv
@@ -235,6 +235,34 @@ for index in range(0,len(wethusdc_quotes)-CYCLES_BACK):
             except ServerError:
                 print("Gemini busy... waiting 10 seconds...")
                 time.sleep(10)
+
+            except ClientError as e:
+
+                if os.environ.get("API_MODE") == "true":
+                    import json
+
+                    error = str(e)
+
+                    if "RESOURCE_EXHAUSTED" in error:
+                        print("__ERROR__:" + json.dumps({
+                            "service": "gemini",
+                            "code": "quota_exceeded",
+                            "message": "Gemini API quota exceeded."
+                        }))
+                    elif "UNAUTHENTICATED" in error:
+                        print("__ERROR__:" + json.dumps({
+                            "service": "gemini",
+                            "code": "invalid_api_key",
+                            "message": "Invalid Gemini API key."
+                        }))
+                    else:
+                        print("__ERROR__:" + json.dumps({
+                            "service": "gemini",
+                            "code": "client_error",
+                            "message": "Gemini request failed."
+                        }))
+
+                sys.exit(1)
 
     except KeyboardInterrupt:
         print("\nProgram stopped by user.")
