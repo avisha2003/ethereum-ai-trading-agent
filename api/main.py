@@ -69,7 +69,7 @@ def status():
     rpc_online = False
     latest_block = None
     try:
-        w3_temp = Web3(Web3.HTTPProvider("https://eth-mainnet.g.alchemy.com/v2/alch_6t0cAYZzxaWGlqbogb3M3"))
+        w3_temp = Web3(Web3.HTTPProvider(os.getenv("MAINNET_URL")))
         rpc_online = w3_temp.is_connected()
         if rpc_online:
             latest_block = w3_temp.eth.block_number

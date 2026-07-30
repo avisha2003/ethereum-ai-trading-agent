@@ -18,7 +18,7 @@ load_dotenv()
 
 print = functools.partial(print, flush=True)
 
-MAINNET_URL = "https://eth-mainnet.g.alchemy.com/v2/alch_6t0cAYZzxaWGlqbogb3M3"
+MAINNET_URL = os.getenv("MAINNET_URL")
 BLOCK_TIME_SECONDS = 12
 MINUTE_BLOCKS = int(60 / BLOCK_TIME_SECONDS)
 HOUR_BLOCKS = MINUTE_BLOCKS * 60
